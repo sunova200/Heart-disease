@@ -1,0 +1,62 @@
+name: CI - Train Heart Disease Model
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  train-and-upload:
+    name: Train Model (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [ "3.11", "3.12" ]
+    
+    steps:
+      # 1. Checkout your code
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+      
+      # 2. Setup Python environment
+      - name: 🐍 Setup Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      
+      # 3. Cache dependencies to speed up runs
+      - name: 📦 Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      
+      # 4. Install project dependencies
+      - name: ⬆️ Upgrade pip
+        run: python -m pip install --upgrade pip setuptools wheel
+      
+      - name: 📥 Install requirements
+        run: pip install -r requirements.txt
+      
+      # 5. Run your training script
+      - name: 🧪 Train Model
+        run: python train.py
+      
+      # 6. Verify that models were created
+      - name: 📁 Verify artifacts
+        run: |
+          ls -la *.pkl
+          echo "✅ Models created successfully!"
+      
+      # 7. Upload the .pkl files so you can download them later
+      - name: 📤 Upload trained models
+        uses: actions/upload-artifact@v4
+        with:
+          name: heart-model-python-${{ matrix.python }}
+          path: |
+            logistic_regression_model.pkl
+            scaler.pkl
+          retention-days: 7  # Keep files for 7 days

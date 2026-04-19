@@ -1,0 +1,7 @@
+# Ignore trained models
+*.pkl
+artifacts/
+
+# Python cache
+__pycache__/
+*.pyc
