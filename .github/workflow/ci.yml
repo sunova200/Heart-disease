@@ -59,4 +59,4 @@ jobs:
           path: |
             logistic_regression_model.pkl
             scaler.pkl
-          retention-days: 7  # Keep files for 7 days
+          retention-days: 7  # keep file for 7 days
